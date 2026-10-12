@@ -1,0 +1,137 @@
+<script setup lang="ts">
+// import { ref, reactive } from "vue";
+// import { useRouter } from "vue-router";
+import { useRouter } from "vue-router";
+import { useRegister } from "../../composables/auth/useRegister";
+import { reactive, ref } from "vue";
+
+interface ValidationErrors {
+  [key: string]: string;
+}
+
+const router = useRouter();
+
+const Name = ref("");
+const Username = ref("");
+const email = ref("");
+const password = ref("");
+
+const errors = reactive<ValidationErrors>({});
+
+const { mutate, isPending } = useRegister();
+const handleRegister = (e: Event) => {
+  e.preventDefault();
+
+  mutate(
+    {
+      name: Name.value,
+      username: Username.value,
+      email: email.value,
+      password: password.value,
+    },
+    {
+      onSuccess: () => {
+        router.push("/login");
+      },
+      onError: (error: any) => {
+        Object.assign(errors, error.response.data.errors);
+      },
+    },
+  );
+};
+</script>
+
+<template>
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-0 rounded-4 shadow-sm">
+        <div class="card-body">
+          <h4 class="fw-bold text-center">REGISTER</h4>
+          <hr />
+          <form @submit.prevent="handleRegister">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group">
+                  <label class="mb-1 fw-bold"> Full Name </label>
+                  <input
+                    v-model="Name"
+                    type="text"
+                    class="form-control"
+                    placeholder="Full Name"
+                  />
+                  <div
+                    v-if="errors.Name"
+                    class="alert alert-danger mt-2 rounded-4"
+                  >
+                    {{ errors.Name }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <div class="form-group">
+                  <label class="mb-1 fw-bold"> Username </label>
+                  <input
+                    v-model="Username"
+                    type="text"
+                    class="form-control"
+                    placeholder="Username"
+                  />
+                  <div
+                    v-if="errors.Username"
+                    class="alert alert-danger mt-2 rounded-4"
+                  >
+                    {{ errors.Username }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="form-group">
+                  <label class="mb-1 fw-bold">Email address</label>
+                  <input
+                    v-model="email"
+                    type="email"
+                    class="form-control"
+                    placeholder="Email Address"
+                  />
+                  <div
+                    v-if="errors.Email"
+                    class="alert alert-danger mt-2 rounded-4"
+                  >
+                    {{ errors.Email }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="form-group">
+                  <label class="mb-1 fw-bold">Password</label>
+                  <input
+                    v-model="password"
+                    type="password"
+                    class="form-control"
+                    placeholder="Password"
+                  />
+                  <div
+                    v-if="errors.Password"
+                    class="alert alert-danger mt-2 rounded-4"
+                  >
+                    {{ errors.Password }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary w-100 rounded-4"
+              :disabled="isPending"
+            >
+              {{ isPending ? "Loading..." : "REGISTER" }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
